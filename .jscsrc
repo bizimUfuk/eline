@@ -55,7 +55,7 @@
   "safeContextKeyword": "target",
   "validateLineBreaks": "LF",
   "validateQuoteMarks": "'",
-  "validateIndentation": 2,
+  "validateIndentation": false,
   "excludeFiles": [
     "node_modules/**",
     "coverage/*",
