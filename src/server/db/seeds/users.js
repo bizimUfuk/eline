@@ -1,12 +1,27 @@
+const bcrypt = require('bcryptjs');
 
-exports.seed = function(knex, Promise) {
-  // Deletes ALL existing entries
+exports.seed = (knex, Promise) => {
   return knex('users').del()
-    .then(function () {
-      return Promise.all([
-        // Inserts seed entries
-        knex('users').insert({username: 'fkm', password: '123', admin: true, email: 'fkm@email.com'}),
-        knex('users').insert({username: 'ufuk', password: '1234', admin: false, email: 'ufuk@email.com'})
-      ]);
-    });
+  .then(() => {
+    const salt = bcrypt.genSaltSync();
+    const hash = bcrypt.hashSync('johnson123', salt);
+    return Promise.join(
+      knex('users').insert({
+        username: 'jeremy',
+        password: hash
+      })
+    );
+  })
+  .then(() => {
+    const salt = bcrypt.genSaltSync();
+    const hash = bcrypt.hashSync('bryant123', salt);
+    return Promise.join(
+      knex('users').insert({
+        username: 'kelly',
+        password: hash,
+        admin: true
+      })
+    );
+  });
 };
+

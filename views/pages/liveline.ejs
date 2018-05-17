@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+
+<style>
+	li.motto {
+	    border: 1px solid black;
+	    margin: 0px;
+	    padding: 10px;
+	}
+</style>
+
+</head>
+
+<body>
+
+<% include ../partials/nav.ejs %>
+
+<div class="container">
+
+<h2> Lifeline </h2>
+
+
+
+<% if (alivemottos.length > 0 ){ %>
+    <% alivemottos.forEach(function(r) { %>
+
+	<div class="row">
+	 <div class="col s12 m9">
+	  <div class="card hoverable small sticky-action ">
+
+	    <div class="card-content">
+	      <span class="card-title activator grey-text text-darken-4"><i class="material-icons right">more_vert</i></span>
+	      <p ><%- r.extract %></p>
+	    </div>
+	    <div class="card-reveal">
+		<span class="card-title activator grey-text text-darken-3"><p></p> <i class="material-icons right">close</i></span>
+		<%- r.extract %>
+	    </div>
+	    <div class="card-action">
+		<a class="btn-floating waves-effect waves-light voting" id="+<%= r.did %>"><i class="material-icons">add_box</i></a>
+		<a class="btn-floating waves-effect waves-light voting" id="0<%= r.did %>"><i class="material-icons">panorama_fish_eye</i></a>
+		<a class="btn-floating waves-effect waves-light voting" id="-<%= r.did %>"><i class="material-icons">indeterminate_check_box</i></a>
+
+		<a class="btn-floating btn-large right green lifespan " data-motto-did="<%= r.did %>" value="<%= r.shill %>"><i class="material-icons">favorite</i> </a>
+
+	    </div>
+
+	      
+	  </div>
+	 </div>
+	</div>
+
+
+    <% }); %>   
+<% }else{ %>
+
+    <%- "<p>No motto alive!</p>" %> 
+<% } %> 
+
+
+<% if (typeof mottoArea !== 'undefined' ) { %>
+	<%- mottoArea %>
+<% }else{ %>
+	<%- "<p>Failed to include mottoarea </p>" %> 
+<%  } %>
+</div>
+
+
+<script>
+
+	    var vbtn = document.querySelectorAll('.voting');
+	    for (var i=0; i < vbtn.length; i++){	
+		vbtn[i].addEventListener('click', (e)=>{
+
+			let a_elm = e.target.tagName === "I" ? e.target.parentNode : e.target;
+
+			sendVote(a_elm.id.toString(), (vote) => {
+				let action_div = (function pdiv (p){if(p.tagName === "DIV" && p.className === "card-action"){ return p}else{ return pdiv(p.parentNode)}})(a_elm);
+
+				if (vote) disableVoted(action_div, a_elm );
+			});
+		}, false);
+	    }
+
+	    var ls = document.getElementsByClassName('lifespan');
+	    var moment =(new Date()).getTime() ;
+
+	    for (var j=0; j<ls.length; j++){
+
+		var diff = ls[j].getAttribute("value") - moment;
+		
+		if(diff >0 && diff < 7200000){ //set timer only for 2 hour of mottos
+			ls[j].classList.add("pulse");
+			var interval = diff >= 3600000 ? 600000 : (diff >= 900000 ? 60000 : 1000);
+			var countdown = setInterval( lifetimer, interval, ls[j]);
+		}else if(diff < 0){
+			ls[j].className = ls[j].className.replace(/\bgreen\b/g, " red ");
+			ls[j].className = ls[j].className.replace(/\bpulse\b/g, " ");
+			ls[j].childNodes[0].innerHTML = "hourglass_empty";
+		}
+	    }
+
+	function lifetimer(m){
+
+		var d = m.getAttribute("value") - (new Date()).getTime();
+	
+		var days = Math.floor(d / (1000 * 60 * 60 * 24));
+		var hours = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((d % (1000 * 60)) / 1000);
+
+		var clr="", inn=null;
+		if(d<=0){
+			m.innerHTML = "<i class=\"material-icons\">hourglass_empty</i>";
+			m.className = m.className.replace(/\b(green|orange)\b/g, " red ");
+			m.className = m.className.replace(/\bpulse\b/g, " ");
+		}else if( 900000 > d) { 
+			m.className = m.className.replace(/\b(orange | green)\b/g, " red ");
+			m.innerHTML = minutes > 0 ? minutes + "m:" + seconds + "s": seconds + "s"; 
+		}else if(3600000 > d) { 
+			m.className = m.className.replace(/\b(green | red)\b/g, " orange ");
+			m.innerHTML = "<i class=\"material-icons\">favorite</i>";
+		}else{
+			m.className = m.className.replace(/\b(orange | red)\b/g, " green ");
+			m.innerHTML = "<i class=\"material-icons\">favorite</i>";
+		}	
+
+	}
+	function disableVoted(btnprnt, btn){
+		const clr = {"+": "green", "0": "grey", "-": "red"}
+
+		//disable voting buttons after click
+		btnprnt.querySelectorAll('.voting').forEach((a)=>{
+			a.classList.add("disabled");
+		});
+
+		//change color of pressed button (i element)
+		btn.childNodes[0].classList.add(clr[btn.id.toString().slice(0,1)]);
+
+	}
+	
+	function sendVote(v, cb){
+
+		var http = new XMLHttpRequest();
+		var url = "/vote";
+		var params = {"v": v };
+		http.open("POST", url, true);
+	
+		//Send the proper header information along with the request
+		http.setRequestHeader("Content-type", "text/html"); 
+		
+		http.onreadystatechange = function() {//Call a function when the state changes.
+    			if(http.readyState == 4 && http.status == 200) {
+
+				if ( http.responseText == "OK"+v){
+					cb( true);
+				}else{
+					alert("Couldn't record your Vote!");
+					cb( false);
+				}
+
+   			}
+		}
+		http.send(JSON.stringify(params));
+	}
+
+	
+	</script>
+<% include ../partials/scriptsInHtml.ejs %>
+</body>
+</html>

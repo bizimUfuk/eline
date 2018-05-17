@@ -4,7 +4,7 @@ exports.up = (knex, Promise) => {
     table.increments();
     table.string('username').unique().notNullable();
     table.string('password').notNullable();
-    table.string('email');
+    table.string('email').defaultTo('abc@def.com');
     table.boolean('admin').notNullable().defaultTo(false);
     table.timestamp('created_at').notNullable().defaultTo(knex.raw('now()'));
   });
@@ -13,4 +13,3 @@ exports.up = (knex, Promise) => {
 exports.down = (knex, Promise) => {
   return knex.schema.dropTable('users');
 };
-

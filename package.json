@@ -5,20 +5,31 @@
     "start": "node ./src/server/server",
     "test": "./node_modules/mocha/bin/_mocha"
   },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bizimUfuk/eline.git"
+  },
+  "homepage": "https://promotto.herokuapp.com",
   "dependencies": {
+    "ipfs": "^0.28.2",
+    "ipfsd-ctl": "^0.31.0",
+    "ejs": "^2.6.1",
+    "express": "~4.13.4",
+    "fs": "0.0.1-security",
     "bcryptjs": "^2.4.3",
     "body-parser": "~1.15.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "dotenv": "^2.0.0",
-    "express": "~4.13.4",
     "express-session": "^1.14.0",
     "knex": "^0.11.10",
     "morgan": "~1.7.0",
     "nunjucks": "^2.4.2",
-    "passport": "^0.4.0",
+    "passport": "^0.3.2",
     "passport-local": "^1.0.0",
+    "passport-stub": "^1.1.1",
     "pg": "6.1.0"
   },
   "devDependencies": {
@@ -36,5 +47,6 @@
     "run-sequence": "^1.2.2",
     "tiny-lr": "^0.2.1"
   },
-  "name": "eline"
+  "name": "eline",
+  "author": "Fkm"
 }
