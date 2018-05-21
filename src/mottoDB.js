@@ -1,28 +1,22 @@
-
-const u = require("./mottoUtils");
-
-
 'use strict';
 
 ///DATABASE SECTION: POSTGRESQL
 const { Pool, Client } = require('./../node_modules/pg');
 
 const connection = {
-  connectionString: process.env.DATABASE_URL || "postgres://test2:postgres@localhost:5432/test2" ,
-  ssl: true,
-}
+  connectionString: process.env.DATABASE_URL || 'postgres://test2:postgres@localhost:5432/test2',
+  ssl: true
+};
 
 function pgDB(text, callback){
-    var client = new Client(connection);    
+    var client = new Client(connection);
     client.connect();
     client.query(text, (err,res) => {
 
-	if(err){ 
-		u.logdebug("Error pgDB:", err);
-		callback("Error: Database operation failed!", new Object());
-	}else{
-		u.logdebug("pgDB response:", res);
-		callback(null, res);
+	if (err) {
+		callback("Error: Database operation failed!", {});
+	} else {
+		callback (null, res);
 	}
 
 	client.end();
@@ -30,11 +24,10 @@ function pgDB(text, callback){
 }
 ///POSTGRESQL END
 
-
 function mottoQry (text, cb) {
 	pgDB (text, (err, fetch) => {
-		return cb(err, fetch);
-	})
+		return cb (err, fetch);
+	});
 }
 
 function mottoVote(req, goback) {
@@ -43,15 +36,14 @@ function mottoVote(req, goback) {
 	let did = vote.v.substr(1);
 	let values = sign === "0" ? "interaction=interaction+1" : "shill=shill" + sign + "1, life=life+1, interaction=interaction+1";
 	let text = "UPDATE hashes SET " + values + " WHERE did=" + did;
-	
+
 	mottoQry(text, (err, fetch) => {
-		if (err) console.log("Error update vote: \n", text);
-		u.logdebug("Recorded vote %s 1 for did: %d !", vote.v, vote.did);
-		goback (err ? err : "OK"+vote.v);
-	})
+		if (err) console.log ("Error update vote: \n", text);
+		goback (err ? err : "OK" + vote.v);
+	});
 }
 
 module.exports = {
 	mottoQry: mottoQry,
-	mottoVote: mottoVote,
+	mottoVote: mottoVote
 };

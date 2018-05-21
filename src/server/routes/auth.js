@@ -8,7 +8,14 @@ router.post('/register', authHelpers.loginRedirect, (req, res, next)  => {
   return authHelpers.createUser(req, res)
   .then((response) => {
     passport.authenticate('local', (err, user, info) => {
-      if (user) { handleResponse(res, 200, 'success'); }
+      if (user) {
+        req.login(user, function (err) {
+          if (err) { return handleResponse (res, 500, 'error'); }
+          return res.status(200).redirect('/');
+        });
+      } else {
+        handleResponse(res, 404, 'User cannot register');
+      }
     })(req, res, next);
   })
   .catch((err) => { handleResponse(res, 500, 'error'); });
@@ -17,11 +24,18 @@ router.post('/register', authHelpers.loginRedirect, (req, res, next)  => {
 router.post('/login', authHelpers.loginRedirect, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) { handleResponse(res, 500, 'error'); }
-    if (!user) { handleResponse(res, 404, 'User not found'); }
+    if (!user) {
+      req.session.pagestatus = 404;
+      res.statusCode = 404;
+      return res.redirect('/login');
+    }
     if (user) {
       req.login(user, function (err) {
-        if (err) { handleResponse (res, 500, 'error'); }
-        handleResponse (res, 200, 'success');
+        if (err) {
+          req.session.pagestatus = 401;
+          return res.status(401).redirect('/login');
+        }
+        return res.status(200).redirect('/');
       });
     }
   })(req, res, next);

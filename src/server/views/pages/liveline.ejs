@@ -14,62 +14,52 @@
 </head>
 
 <body>
+  <!-- user info -->
+  <div> 
+    <% if (!user) { %>
+      <p> Welcome! Please <a href="/login">log in</a>/<a href="/register">register</a>.</p>
+    <% } else { %>
+      <p> Hello, <%= user.username %>. You have <%= user.coins %> mottocoins. </p>
+    <% } %>
+  </div>
+  
+  <!-- include navigation -->
+  <% include ../partials/nav.ejs %>
 
-<% include ../partials/nav.ejs %>
+  <!-- main body -->
+  <div class="container">
+    <h2> Lifeline </h2>
 
-<div class="container">
-
-<h2> Lifeline </h2>
-
-
-
-<% if (alivemottos.length > 0 ){ %>
-    <% alivemottos.forEach(function(r) { %>
-
-	<div class="row">
-	 <div class="col s12 m9">
-	  <div class="card hoverable small sticky-action ">
-
-	    <div class="card-content">
-	      <span class="card-title activator grey-text text-darken-4"><i class="material-icons right">more_vert</i></span>
-	      <p ><%- r.extract %></p>
-	    </div>
-	    <div class="card-reveal">
-		<span class="card-title activator grey-text text-darken-3"><p></p> <i class="material-icons right">close</i></span>
-		<%- r.extract %>
-	    </div>
-	    <div class="card-action">
-		<a class="btn-floating waves-effect waves-light voting" id="+<%= r.did %>"><i class="material-icons">add_box</i></a>
-		<a class="btn-floating waves-effect waves-light voting" id="0<%= r.did %>"><i class="material-icons">panorama_fish_eye</i></a>
-		<a class="btn-floating waves-effect waves-light voting" id="-<%= r.did %>"><i class="material-icons">indeterminate_check_box</i></a>
-
-		<a class="btn-floating btn-large right green lifespan " data-motto-did="<%= r.did %>" value="<%= r.shill %>"><i class="material-icons">favorite</i> </a>
-
-	    </div>
-
-	      
-	  </div>
-	 </div>
-	</div>
-
-
-    <% }); %>   
-<% }else{ %>
-
-    <%- "<p>No motto alive!</p>" %> 
-<% } %> 
-
-
-<% if (typeof mottoArea !== 'undefined' ) { %>
-	<%- mottoArea %>
-<% }else{ %>
-	<%- "<p>Failed to include mottoarea </p>" %> 
-<%  } %>
-</div>
+    <% if (alivemottos.length > 0 ){ %>
+        <% alivemottos.forEach(function(r) { %>
+          <div class="row">
+           <div class="col s12 m9">
+            <div class="card hoverable small sticky-action ">
+              <div class="card-content">
+                <span class="card-title activator grey-text text-darken-4"><i class="material-icons right">more_vert</i></span>
+                <p ><%- r.extract %></p>
+              </div>
+              <div class="card-reveal">
+	              <span class="card-title activator grey-text text-darken-3"><p></p> <i class="material-icons right">close</i></span>
+	              <%- r.extract %>
+              </div>
+              <div class="card-action">
+	              <a class="btn-floating waves-effect waves-light voting" id="+<%= r.did %>"><i class="material-icons">add_box</i></a>
+	              <a class="btn-floating waves-effect waves-light voting" id="0<%= r.did %>"><i class="material-icons">panorama_fish_eye</i></a>
+	              <a class="btn-floating waves-effect waves-light voting" id="-<%= r.did %>"><i class="material-icons">indeterminate_check_box</i></a>
+	              <a class="btn-floating btn-large right green lifespan " data-motto-did="<%= r.did %>" value="<%= r.shill %>"><i class="material-icons">favorite</i> </a>
+              </div>            
+            </div>
+           </div>
+          </div>
+        <% }); %>   
+    <% }else{ %>
+        <%- "<p>No motto alive!</p>" %> 
+    <% } %>
+    </div>
 
 
 <script>
-
 	    var vbtn = document.querySelectorAll('.voting');
 	    for (var i=0; i < vbtn.length; i++){	
 		vbtn[i].addEventListener('click', (e)=>{

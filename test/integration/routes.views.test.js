@@ -7,7 +7,7 @@ chai.use(chaiHttp);
 
 const server = require('../../src/server/app');
 
-describe('routes : index', () => {
+describe('routes: views', () => {
 
   beforeEach((done) => {
     done();
@@ -17,10 +17,10 @@ describe('routes : index', () => {
     done();
   });
 
-  describe('GET /', () => {
-    it('should render the index', (done) => {
+  describe('GET /register', () => {
+    it('should render the register view', (done) => {
       chai.request(server)
-      .get('/')
+      .get('/register')
       .end((err, res) => {
         res.redirects.length.should.equal(0);
         res.status.should.equal(200);
@@ -30,15 +30,14 @@ describe('routes : index', () => {
     });
   });
 
-  describe('GET /404', () => {
-    it('should throw an error', (done) => {
+  describe('GET /login', () => {
+    it('should render the login view', (done) => {
       chai.request(server)
-      .get('/404')
+      .get('/login')
       .end((err, res) => {
         res.redirects.length.should.equal(0);
-        res.status.should.equal(404);
-        res.type.should.equal('application/json');
-        res.body.message.should.eql('Not Found');
+        res.status.should.equal(200);
+        res.type.should.equal('text/html');
         done();
       });
     });

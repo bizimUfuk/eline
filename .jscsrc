@@ -1,16 +1,4 @@
 {
-  "requireSpacesInNamedFunctionExpression": {
-    "beforeOpeningCurlyBrace": true
-  },
-  "requireSpacesInFunctionExpression": {
-    "beforeOpeningCurlyBrace": true
-  },
-  "requireSpacesInAnonymousFunctionExpression": {
-    "beforeOpeningCurlyBrace": true
-  },
-  "requireSpacesInFunctionDeclaration": {
-    "beforeOpeningCurlyBrace": true
-  },
   "disallowEmptyBlocks": true,
   "disallowSpacesInsideArrayBrackets": true,
   "disallowSpacesInsideParentheses": true,
@@ -21,12 +9,12 @@
   "disallowSpaceBeforeBinaryOperators": [
     ","
   ],
-  "disallowMixedSpacesAndTabs": true,
+  "disallowMixedSpacesAndTabs": false,
   "disallowTrailingWhitespace": true,
   "disallowTrailingComma": true,
   "disallowKeywords": [ "with" ],
   "disallowMultipleLineBreaks": true,
-  "requireSpaceBeforeBlockStatements": true,
+  "requireSpaceBeforeBlockStatements": false,
   "requireParenthesesAroundIIFE": true,
   "requireSpacesInConditionalExpression": true,
   "requireBlocksOnNewline": 1,
@@ -54,11 +42,12 @@
   ],
   "safeContextKeyword": "target",
   "validateLineBreaks": "LF",
-  "validateQuoteMarks": "'",
+  "validateQuoteMarks": false,
   "validateIndentation": false,
   "excludeFiles": [
     "node_modules/**",
     "coverage/*",
-    "build/client/*"
+    "build/client/*",
+    "src/client/*"
   ]
 }

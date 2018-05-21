@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+  <!-- user info -->
+  <div> 
+    <% if (!user) { %>
+      <p> Welcome! Please <a href="/login">log in</a>/<a href="/register">register</a>.</p>
+    <% } else { %>
+      <p> Hello, <%= user.username %>. You have <%= user.coins %> mottocoins. </p>
+    <% } %>
+  </div>
+
+  <% include ../partials/nav.ejs %>
+
+  <div class="container">
+  <h2>Motto</h2>
+
+	  <div> <%- extract %> </div>
+      
+  </div>
+
+  <% include ../partials/scriptsInHtml.ejs %>
+</body>
+</html>

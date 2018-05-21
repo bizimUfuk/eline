@@ -17,7 +17,6 @@ function createUser (req) {
 }
 
 function loginRequired(req, res, next) {
-console.log('>> req.user: ', req.user);
   if (!req.user) return res.status(401).json({status: 'Please log in'});
   return next();
 }

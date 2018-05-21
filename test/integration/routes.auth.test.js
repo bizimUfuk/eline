@@ -34,10 +34,9 @@ describe('routes : auth', () => {
       })
       .end((err, res) => {
         should.not.exist(err);
-        res.redirects.length.should.eql(0);
+        res.redirects.length.should.eql(1);
         res.status.should.eql(200);
-        res.type.should.eql('application/json');
-        res.body.status.should.eql('success');
+        res.type.should.equal('text/html');
         done();
       });
     });
@@ -65,7 +64,7 @@ describe('routes : auth', () => {
       chai.request(server)
       .post('/auth/login')
       .send({
-        username: 'michael',
+        username: 'micehael',
         password: 'johnson123'
       })
       .end((err, res) => {
@@ -73,7 +72,7 @@ describe('routes : auth', () => {
         res.redirects.length.should.eql(0);
         res.status.should.eql(404);
         res.type.should.eql('application/json');
-        res.body.status.should.eql('User not found');
+        res.body.status.should.eql('User not found!');
         done();
       });
     });

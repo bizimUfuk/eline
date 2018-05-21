@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+  <!-- user info -->
+  <div> 
+    <% if (!user) { %>
+      <p> Welcome! Please <a href="/login">log in</a>/<a href="/register">register</a>.</p>
+    <% } else { %>
+      <p> Hello, <%= user.username %>. You have <%= user.coins %> mottocoins. </p>
+    <% } %>
+  </div>
+  
+  <!-- include navigation -->
+  <% include ../partials/nav.ejs %>
+
+  <!-- main body -->
+  <div class="jumbotron text-center">
+    <div class="container">
+    
+      <h1>Register</h1>
+      <div class="row">
+        <form action="/auth/register" method="post" class="col s12 m4">
+          <div class="row">
+	          <div>
+	            <label>Username:</label>
+	            <input type="text" name="username"/><br/>
+	          </div>
+	          <div>
+	            <label>Password:</label>
+	            <input type="password" name="password"/>
+	          </div>
+	          <div>
+	            <input type="submit" value="Submit"/>
+	          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <% include ../partials/scriptsInHtml.ejs %>
+</body>
+</html>

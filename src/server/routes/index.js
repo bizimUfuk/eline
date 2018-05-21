@@ -9,8 +9,10 @@ router.get('/', function (req, res, next) {
   indexController.sum(1, 2, (error, results) => {
     if (error) return next(error);
     if (results) {
+      renderObject.mottoArea = null;
       renderObject.sum = results;
-      res.render('index', renderObject);
+      renderObject.user = req.user;
+      res.render('pages/index', renderObject);
     }
   });
 });

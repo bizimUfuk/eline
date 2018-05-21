@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+  <!-- include navigation -->
+  <% include ../partials/nav.ejs %>
+
+  <!-- main body -->
+  <div class="jumbotron text-center">
+    <div class="container">
+      <% if (user) { %>
+        <p> You are already logged in as user.username! </p>
+      <% } else { %>
+        <h1>Login</h1>
+        <div class="row">
+        <form action="/auth/login" method="post" class="col s12 m4">
+          <div class="row">
+	          <div>
+	            <label>Username:</label>
+	              <% if (pagestatus && pagestatus === 404) { %>
+                  <p style="color:red;">User not found!</p>
+                <% } %>
+	            <input type="text" name="username"/><br/>
+	          </div>
+	          <div>
+	            <label>Password:</label>
+	            <% if (pagestatus && pagestatus === 401) { %>
+                <p style="color:red;">Wrong Password!</p>
+              <% } %>
+	            <input type="password" name="password"/>
+	          </div>
+	          <div>
+	            <input type="submit" value="Submit"/>
+	          </div>
+        </form>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <% include ../partials/scriptsInHtml.ejs %>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+  <!-- user info -->
+  <div> 
+    <% if (!user) { %>
+      <p> Welcome! Please <a href="/login">log in</a>/<a href="/register">register</a>.</p>
+    <% } else { %>
+      <p> Hello, <%= user.username %>. You have <%= user.coins %> mottocoins. </p>
+    <% } %>
+  </div>
+  
+  <!-- include navigation -->
+  <% include ../partials/nav.ejs %>
+
+  <!-- main body -->
+  <div class="jumbotron text-center">
+    <div class="container">
+      <h1>Promotto</h1>
+      <p>The Heroku version of proMotto</p>
+    </div>
+  </div>
+  <div class="container">
+	  <%- mottoArea %>
+  </div>
+
+  <% include ../partials/scriptsInHtml.ejs %>
+</body>
+</html>
