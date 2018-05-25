@@ -15,7 +15,7 @@ passport.use(new LocalStrategy(options, (username, password, done) => {
   .then((user) => {
     if (!user) return done(null, false);
     if (!authHelpers.comparePass(password, user.password)) {
-      return done(null, false);
+      return done(null, true);
     } else {
       return done(null, user);
     }

@@ -10,29 +10,32 @@ router.post('/register', authHelpers.loginRedirect, (req, res, next)  => {
     passport.authenticate('local', (err, user, info) => {
       if (user) {
         req.login(user, function (err) {
-          if (err) { return handleResponse (res, 500, 'error'); }
+          if (err) { return res.status(500).redirect('/login'); }
           return res.status(200).redirect('/');
         });
       } else {
-        handleResponse(res, 404, 'User cannot register');
+        req.session.pagestatus = response;
+        return res.redirect('/register');
       }
     })(req, res, next);
   })
-  .catch((err) => { handleResponse(res, 500, 'error'); });
+  .catch((err) => {
+    console.log('auth createUser catch err: ', err);
+    return res.status(401).redirect('/register');
+  });
 });
 
 router.post('/login', authHelpers.loginRedirect, (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
+  passport.authenticate('local',{ successRedirect: '/liveline' }, (err, user, info) => {
     if (err) { handleResponse(res, 500, 'error'); }
     if (!user) {
-      req.session.pagestatus = 404;
-      res.statusCode = 404;
-      return res.redirect('/login');
+      req.session.pagestatus = {code: 404, elem: 'username', msg: 'User not found!'};
+      return res.redirect('back');
     }
     if (user) {
       req.login(user, function (err) {
         if (err) {
-          req.session.pagestatus = 401;
+          req.session.pagestatus = {code: 401, elem: 'password', msg: 'Wrong password!'};
           return res.status(401).redirect('/login');
         }
         return res.status(200).redirect('/');
@@ -43,7 +46,7 @@ router.post('/login', authHelpers.loginRedirect, (req, res, next) => {
 
 router.get('/logout', authHelpers.loginRequired, (req, res, next) => {
   req.logout();
-  handleResponse(res, 200, 'success');
+  return res.status(200).redirect('/');
 });
 
 function handleResponse(res, code, statusMsg) {

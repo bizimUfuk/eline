@@ -48,6 +48,6 @@
     "node_modules/**",
     "coverage/*",
     "build/client/*",
-    "src/client/*"
+    "src/client/**"
   ]
 }

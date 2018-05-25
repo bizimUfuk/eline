@@ -10,7 +10,7 @@
     <% if (!user) { %>
       <p> Welcome! Please <a href="/login">log in</a>/<a href="/register">register</a>.</p>
     <% } else { %>
-      <p> Hello, <%= user.username %>. You have <%= user.coins %> mottocoins. </p>
+      <p> Hello, <%= user.username %>. You have <%= user.coins %> mottocoins. <a href="/logout"> log out </a></p>
     <% } %>
   </div>
   
