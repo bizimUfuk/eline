@@ -20,7 +20,6 @@ function comparePass(userPassword, databasePassword) {
 }
 
 function createUser (req) {
-
   return isValid(req.body)
   .then(() => {
       const salt = bcrypt.genSaltSync();
@@ -33,10 +32,14 @@ function createUser (req) {
         referrer: req.body.referrer,
         password: hash
       })
-      .returning('*');
+      .returning('*')
+      .then((toReturn) => {
+        expireInvitaion(req.body);
+        return toReturn;
+      });
   })
   .catch((err) => {
-    //console.log('error with createUser in auth/_helpers. err: %o ', err);
+    console.log('error with createUser in auth/_helpers. err: %o ', err);
     return pagestatusmap[err[0]];
   });
 }
@@ -102,7 +105,7 @@ function isValid(user) {
       if (!record) {
         fails.push('ic01');
         reject(fails);
-      } else if (record.expired === true) {
+      } else if (record.isexpired === true) {
         fails.push('ic02');
         reject(fails);
       } else {
@@ -121,11 +124,23 @@ function isValid(user) {
   });
 }
 
+function expireInvitaion (user) {
+  return knex('invitations')
+  .update({
+    isexpired: true,
+    expired_at: knex.raw('now()')
+  })
+  .where({ inviting: user.referrer, invited: user.username, invicode: user.invicode })
+  .returning('*')
+  .catch((err) => console.log('expireInvitation error: ', err));
+}
+
 module.exports = {
   comparePass,
   createUser,
   loginRequired,
   adminRequired,
-  loginRedirect
+  loginRedirect,
+  expireInvitaion
 };
 

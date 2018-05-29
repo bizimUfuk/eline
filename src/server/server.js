@@ -1,5 +1,11 @@
-(function() {
+(function(){
+  require('./ipfsd').initialize((node) => { global.ipfsNode = node; });
 
+  setTimeout(startServer, 4000);
+
+})();
+
+function startServer() {
   'use strict';
 
   const app = require('./app');
@@ -49,5 +55,4 @@
     const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
     console.log('Listening on ' + bind);
   }
-
-}());
+}

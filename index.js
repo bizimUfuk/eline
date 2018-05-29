@@ -34,10 +34,6 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api) => {
 	  res.render('pages/index', { mottoArea: mottoArea });
   });
 
-	app.get('/login', function (req, res) {
-    res.render('pages/login');
-  });
-
 	app.get('/liveline(\/:hash)?(\/:sub)?', function (req, res) {
 	  liveline(node, req, res, function (fetch) {
 	    res.render('pages/liveline', { user: req.user, mottoArea: mottoArea, alivemottos: fetch.sort(function (a,b) { return b.shill - a.shill; })});

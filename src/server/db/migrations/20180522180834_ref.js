@@ -7,8 +7,9 @@ exports.up = (knex, Promise) => {
     table.string('invicode').unique().notNullable();
     table.string('refcode');
     table.integer('giftcoins').defaultTo(10);
-    table.boolean('expired').notNullable().defaultTo(false);
     table.timestamp('created_at').notNullable().defaultTo(knex.raw('now()'));
+    table.boolean('isexpired').notNullable().defaultTo(false);
+    table.timestamp('expired_at');
   });
 };
 

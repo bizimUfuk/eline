@@ -7,7 +7,7 @@ exports.seed = (knex, Promise) => {
         inviting: 'jen',
         invited: 'fkm',
         invicode: 'ABCD',
-        expired: false
+        isexpired: false
       })
     );
   })
@@ -17,7 +17,7 @@ exports.seed = (knex, Promise) => {
         inviting: 'validcaller',
         invited: 'validcalled',
         invicode: 'validcode',
-        expired: false
+        isexpired: false
       })
     );
   })
@@ -27,7 +27,7 @@ exports.seed = (knex, Promise) => {
         inviting: 'expiredinvitation',
         invited: 'expiredinvitation',
         invicode: 'expiredinvitation',
-        expired: true
+        isexpired: true
       })
     );
   });

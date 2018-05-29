@@ -33,8 +33,33 @@ function pathfix(t, from="src=\"", to="src=\"/", offset = 0){
 	}
 }
 
+function isInDir(sub, dir){
+	let isIn = false;
+	dir.forEach((item) => {
+		if (sub === item.name) isIn = true;
+	});
+	return isIn;
+}
+
+function isSpecFile(filename){
+	let fileList = ['index.html', 'index.htm', 'index.shtml'];
+	return Boolean(fileList.indexOf(filename) >= 0);
+}
+
+function isValidHash(h){
+	return h.toString().length === 46 && h.toString().slice(0,2) === 'Qm';
+}
+
+function isWrapper(h) {
+	return h.path === '.';
+}
+
 module.exports = {
 	logdebug: logdebug,
 	readfromtxtfile: readfromtxtfile,
-	pathfix: pathfix
+	pathfix: pathfix,
+	isInDir: isInDir,
+	isSpecFile: isSpecFile,
+	isValidHash: isValidHash,
+	isWrapper: isWrapper
 };
