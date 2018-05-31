@@ -18,27 +18,6 @@ var mottoArea;
 mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api) => {
   //initialize node
 	node = api;
-	mottoIPFS.ipfsCAT(node, '/ipfs/QmUbo8jpoymGJMtYRbFNahnXtJguKU18P2k26phHopQsmo/index.html', function (err, extract){
-		mottoArea = err ? err : extract;
-	});
-
-	app.use(express.static(path.join(__dirname, 'public')))
-	  .use(bodyParser.raw({inflate: true, limit: '100kb', type: 'text/html'}))
-	  .set('views', path.join(__dirname, 'views'))
-	  .set('view engine', 'ejs');
-
-  app.get('/', function (req, res){		//original url: QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ
-	  let ip = req.connection.remoteAddress;
-	  let text = 'INSERT INTO access_logs (ip) VALUES (\'' + ip + '\') ON CONFLICT DO NOTHING RETURNING ip';
-	  mottoDB.mottoQry(text, (err, fetch) => {});
-	  res.render('pages/index', { mottoArea: mottoArea });
-  });
-
-	app.get('/liveline(\/:hash)?(\/:sub)?', function (req, res) {
-	  liveline(node, req, res, function (fetch) {
-	    res.render('pages/liveline', { user: req.user, mottoArea: mottoArea, alivemottos: fetch.sort(function (a,b) { return b.shill - a.shill; })});
-	  });
-	});
 
   app.post('/vote', function (req, res){
       mottoDB.mottoVote(req, (fetch) => res.send(fetch));
@@ -98,47 +77,3 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api) => {
 
   app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 });
-
-function liveline (nd, request, response, cb){
-  var cond = (typeof request.params === 'undefined' || typeof request.params.hash === 'undefined') ? '' : 'WHERE hash = \'' + request.params.hash + '\'';
-  var text = 'SELECT * FROM live_hashes() ' + cond;
-
-  mottoDB.mottoQry(text, function (err, fetch) {
-    if (err) cb([]);
-
-    var liveHashes = fetch.rows.slice();
-
-    if ((Object.keys(liveHashes).length === 0 && liveHashes.constructor === Array)) response.render('pages/liveline', { alivemottos: (err ? err : []) });
-
-    var mottos = [];		//collection to hold the mottos with extract property
-    var counter = 0;
-
-    for (let l = 0; l < liveHashes.length; l++) {
-      var lh = liveHashes[l];
-
-      var rt = setTimeout(function (){ return; }, 5000);
-
-      let tempObj = Object.assign({}, lh);
-
-      const mottopath = '/ipfs/' + tempObj.hash + '/index.html';
-
-      mottoIPFS.ipfsCAT(nd, mottopath, (er, extract) => {
-        counter++;
-
-        if (er || extract) clearTimeout(rt);
-        if (er) return;
-
-        //convert life to remaining minutes
-        tempObj.shill = tempObj.shill * 60000 + new Date(tempObj.mtime).getTime();
-        /// TODO: Fix this workaround for relative paths in index.html files
-        tempObj.extract = u.pathfix (extract, 'src=\'', 'src=\'/ipfs/' + tempObj.hash + '/');
-        mottos.push(tempObj);
-        return;
-      });
-
-      if (counter === liveHashes.length) {
-        cb (mottos);
-      }
-    }
-  });
-}

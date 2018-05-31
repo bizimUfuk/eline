@@ -1,7 +1,14 @@
 (function(){
-  require('./ipfsd').initialize((node) => { global.ipfsNode = node; });
+  const ipfsd = require('./ipfsd');
 
-  setTimeout(startServer, 4000);
+  ipfsd.startIPFS()
+  .then((n) => {
+    global.ipfsNode = n;
+    startServer();
+  })
+  .catch((e) => {
+    console.log('err: ', e);
+  });
 
 })();
 

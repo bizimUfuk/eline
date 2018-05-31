@@ -1,12 +1,11 @@
-
+ // 'use strict';
 (function() {
 
-  'use strict';
   const path = require('path');
-  
+
   const repository = path.join(__dirname, 'mottoRepo');
   var u = require('../mottoUtils');
-  
+
   const IPFSFactory = require('ipfsd-ctl');
   const f = IPFSFactory.create({ type: 'proc', exec: require('ipfs')});
 
@@ -17,8 +16,8 @@
 	  });
   };
 
-  function spawnNode (rp, cb) {
-	  f.spawn ({ disposable: false, repoPath: rp }, (err, ipfsd) => {
+  function spawnNode (cb) {
+	  f.spawn ({ disposable: false, repoPath: repository }, (err, ipfsd) => {
 		  if (err) { throw err; }
 
 		  if (ipfsd.initialized) {
@@ -42,13 +41,13 @@
   }
 
   function ipfsCAT(path, goback){
-    var self = this;
+    var target = this;
 	  var pieces = path.split('/');
 	  var ipfspiece = pieces.indexOf('ipfs');
 
 	  if (u.isValidHash (pieces[ipfspiece + 1]) === false) goback('Err: Not valid hash', null);
 
-	  self.ipfsLS(path, (err, subItem)=> {
+	  target.ipfsLS(path, (err, subItem)=> {
 
 		  if (err || subItem === null) goback('ipfsLS error in ipfsCAT. path: ' + path.toString(), null);
 
@@ -59,7 +58,7 @@
 
 			  if (specFileIndex >= 0){
 				  if (path.slice(-1) !== '/') path = path + '/';
-				  self.ipfsCAT (path + subItem[specFileIndex].name, (err, res) => goback(err, res));
+				  target.ipfsCAT (path + subItem[specFileIndex].name, (err, res) => goback(err, res));
 
 			  } else {
 			    ///no html file inside
@@ -70,7 +69,7 @@
 			  }
 		  } else if (subItem && subItem.length === 0){
 			  u.logdebug('Catching file type dag > %s', path);
-			  self.files.cat(path, (err, res) =>{
+			  target.files.cat(path, (err, res) =>{
 				  u.logdebug('\t %s cat result: ', path, err ? 'Fail!' : 'Success');
 				  goback(null, res);
 			  });
@@ -142,7 +141,8 @@
   }
   ///SWARM FUNCTIONS
   function swarmPeers(phash, cb){
-    var self = this;
+
+    var target = this;
 
 	  var peerList = [];
 	  var type = phash.type;
@@ -152,7 +152,7 @@
 		  case 'bootstrap':
 			  u.readfromtxtfile ('./utils/bootstrapnodes.txt', (lst) => {
 				  lst.forEach ((peer) => {
-					  if (peer && (peer !== '--end--')) self.swarm.connect (peer, (err) => {
+					  if (peer && (peer !== '--end--')) target.swarm.connect (peer, (err) => {
 						  u.logdebug(err ? err : 'Connected to: ' + peer.toString());
 					  });
 				  });
@@ -161,15 +161,15 @@
 			  break;
 		  case 'connect':
 			  if (peerhash !== 'undefined'){
-				  self.swarm.connect(peerhash, (err)=>{
+				  target.swarm.connect(peerhash, (err)=>{
 					  u.logdebug(err ? 'Couldnt connect to: ' : 'Connected to: ', phash.peerhash);
-					  cb(err ? false : true);
+					  cb(err ? 'error' : true);
 				  });
 			  }
 			  break;
 
 		  case 'peers':
-			  self.swarm.peers (function (err, peerInfos) {
+			  target.swarm.peers (function (err, peerInfos) {
 				  peerInfos.forEach (function (p) {
 					  peerList.push (p.peer.id._idB58String);
 					  if (peerInfos.length === peerList.length) {
@@ -187,16 +187,22 @@
 	  }
   }
 
-  module.exports = {
-        initialize: (callback) => {
-          if (typeof global.ipfsNode !== 'undefined') callback(global.ipfsNode);
-          spawnNode(repository, (node) => {
-            node.ipfsLS = ipfsLS;
-            node.ipfsCAT = ipfsCAT;
-            node.ipfsPUT = ipfsPUT;
-            node.swarmPeers = swarmPeers;
-            callback(node);
+  function startIPFS() {
+    return new Promise((resolve, reject) => {
+          spawnNode((node) => {
+            if (node.state._state !== 'running') return reject('failure');
+              node.ipfsLS = ipfsLS;
+              node.ipfsCAT = ipfsCAT;
+              node.ipfsPUT = ipfsPUT;
+              node.swarmPeers = swarmPeers;
+              resolve(node);
           });
-        }
-      }
+    });
+  }
+
+  const ipfsStatus = global.ipfsNode && ipfsNode.state._state;
+
+  module.exports = {
+        startIPFS: startIPFS
+  };
 }());
