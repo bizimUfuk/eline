@@ -27,6 +27,7 @@
 
     app.use(cookieParser());
     app.use(bodyParser.json());
+    app.use(bodyParser.raw({inflate: true, limit: '100kb', type: 'text/html'})) //added to get req.body
     app.use(bodyParser.urlencoded({ extended: false }));
     // uncomment if using express-session
     app.use(session({

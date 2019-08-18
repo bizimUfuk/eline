@@ -3,7 +3,7 @@ const databaseName = 'eline';
 module.exports = {
   development: {
     client: 'pg',
-    connection: `postgres://test2:postgres@localhost:5432/${databaseName}`,
+    connection: `postgres://ufuk:2376@localhost:5432/${databaseName}`,
     migrations: {
       directory: __dirname + '/src/server/db/migrations'
     },
@@ -13,7 +13,7 @@ module.exports = {
   },
   test: {
     client: 'pg',
-    connection: `postgres://test2:postgres@localhost:5432/${databaseName}_test`,
+    connection: `postgres://ufuk:postgres@localhost:5432/${databaseName}_test`,
     migrations: {
       directory: __dirname + '/src/server/db/migrations'
     },

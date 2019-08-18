@@ -1,10 +1,10 @@
 //'use strict';
 
-const target = global.ipfsNode ? ipfsNode : require('../ipfss').initialize((n) => { return n; });
+const target = global.ipfsNode;
 
 function mottoArea(callback) {
   const targetPeer = {
-    peerhash: '/ip4/127.0.0.1/tcp/4001/ipfs/QmU987F9Z9e6eRTc4TEmwcnTqaGHD7gzfDRHX9sY1ySBGN',
+    peerhash: '/ip4/127.0.0.1/tcp/4001/ipfs/QmSkCDVFoQQ17aCAVQnbdZ7EAo7ui2pvsvpVBo1bDQsBBm',
     type: 'connect'
   };
 
@@ -16,11 +16,24 @@ function mottoArea(callback) {
   });
 }
 
+function recordMotto(req, callback) {
+  const toPut = {
+		prevDir: req.params.hash,
+		filename: req.params.filename,
+		filebuffer: req.body 
+  }
+
+  target.ipfsPUT(toPut, (e,r) => {
+    if (e) callback (e, null);
+    callback (null, r);
+  });
+}
+
 function liveline (request, response, cb){
   var cond = (typeof request.params === 'undefined' || typeof request.params.hash === 'undefined') ? '' : 'WHERE hash = \'' + request.params.hash + '\'';
   var text = 'SELECT * FROM live_hashes() ' + cond;
 
-  knex('hashes').where(
+//  knex('hashes').where(
 /*
   mottoDB.mottoQry(text, function (err, fetch) {
     if (err) cb([]);
@@ -65,5 +78,6 @@ function liveline (request, response, cb){
 
 module.exports = {
   mottoArea: mottoArea,
-  liveline: liveline
+  liveline: liveline,
+  recordMotto: recordMotto
 };

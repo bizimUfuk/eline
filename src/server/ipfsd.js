@@ -80,65 +80,67 @@
 	  });
   }
 
-  function ipfsPUT(nd, prevDir, data, goback){
+  function ipfsPUT(data, goback){
+    var target = this;
+
     /// aData: temporary collection to push the content of the prevDir
-	  var aData = [];
-	  /// new data do add into prevDir
+    var aData = [];
+
+    /// new data do add into prevDir
     var newData = {content: data.filebuffer, path: './' + data.filename };
 
-	  ipfsLS(nd, prevDir, (err, pfiles)=>{
-      /// check whether the prevDir is a Directory (wrapper hash) or something else (empty dir, any hash)
-		  if (err) throw err;
+    /// check whether the prevDir is a Directory (wrapper hash) or something else (empty dir, any hash)
+    target.ipfsLS(data.prevDir, (err, pfiles)=>{
+      if (err) throw err;
 
       /// prevDir has pfiles inside
-		  if (pfiles.length !== 0) {
+      if (pfiles.length !== 0) {
+	pfiles.forEach((pfile) => {
 
-			  pfiles.forEach((pfile) => {
-				  nd.files.cat(pfile.hash, (err, res) => {
+	  target.files.cat(pfile.hash, (err, res) => {
+	    if (err) throw err;
 
-					  if (err) throw err;
+	    aData.push({content: res, path: './' + pfile.name});
 
-					  aData.push({content: res, path: './' + pfile.name});
+	    if (aData.length === pfiles.length) {
+	      aData.push(newData);
 
-					  if (aData.length === pfiles.length) {
+	      target.files.add(aData, [{ wrapWithDirectory: true, recursive: true }], function (err, addedfiles) {
+		if (err) goback('Error in ipfsPUT. pfiles.length !==0 >> ' + err, null);
+		u.logdebug('FilesAdded into prev Dir DAG: ', addedfiles);
+		let returnhash = addedfiles[addedfiles.findIndex(u.isWrapper)].hash;
+		if (!u.isValidHash(returnhash)) {
+		  u.logdebug('Err: returnhash-%s is not a valid hash', returnhash.toString());
+		  goback('Err: returnhash is not a valid hash!', null);
+		} else {
+		  goback(null, returnhash);
+		}
+	      });
+	    }
+	  });///files.cat closure
+	});
 
-						  aData.push(newData);
+      ///prevDir is either emptyDir, or some other thing to ignore
+      } else if (JSON.stringify(pfiles) === '[]'){
+	target.files.add([newData], [{wrapWithDirectory: true, recursive: true}],(err, addedfiles)=>{
+	  if (err) goback('Error in ipfsPUT. pfiles === [] >>', null);
+	  u.logdebug('FilesAdded into a new Dir DAG: ', addedfiles);
 
-						  nd.files.add(aData, [{ wrapWithDirectory: true, recursive: true }], function (err, addedfiles) {
-							  if (err) goback('Error in ipfsPUT. pfiles.length !==0 >> ' + err, null);
-							  u.logdebug('FilesAdded into prev Dir DAG: ', addedfiles);
-							  let returnhash = addedfiles[addedfiles.findIndex(u.isWrapper)].hash;
-							  if (!u.isValidHash(returnhash)) {
-								  u.logdebug('Err: returnhash-%s is not a valid hash', returnhash.toString());
-								  goback('Err: returnhash is not a valid hash!', null);
-							  } else {
-								  goback(null, returnhash);
-							  }
-						  });
-					  }
-				  });///nd.files.cat closure
-			  });
-		  } else if (JSON.stringify(pfiles) === '[]'){
-		    ///prevDir is either emptyDir, or some other thing to ignore
-
-			  nd.files.add([newData], [{wrapWithDirectory: true, recursive: true}],(err, addedfiles)=>{
-				  if (err) goback('Error in ipfsPUT. pfiles === [] >>', null);
-
-				  u.logdebug('FilesAdded into a new Dir DAG: ', addedfiles);
-				  let returnhash = addedfiles[addedfiles.findIndex(u.isWrapper)].hash;
-				  if (!u.isValidHash(returnhash)){
-					  u.logdebug('Err: returnhash-%s is not a valid hash', returnhash.toString());
-					  goback('Err: returnhash is not a valid hash!', null);
-				  } else {
-					  goback(null, returnhash);
-				  }
-			  });
-		  } else {
-			  u.logdebug('ipfsPUT: pfiles not null, neither has length property! Check whats wrong. \n\t pfiles: %O \n\t err: %O', pfiles, err);
-			  goback('ipfsLS error. prevDir: ' + prevDir.toString(), null);
-		  }
-	  });
+	  let returnhash = addedfiles[addedfiles.findIndex(u.isWrapper)].hash;
+	  if (!u.isValidHash(returnhash)){
+	    u.logdebug('Err: returnhash-%s is not a valid hash', returnhash.toString());
+	    goback('Err: returnhash is not a valid hash!', null);
+	  } else {
+	    goback(null, returnhash);
+	  }
+	});
+      } else {
+	u.logdebug('ipfsPUT: pfiles not null, neither has length property! Check whats wrong. \n\t pfiles: %O \n\t err: %O', pfiles, err);
+	goback('ipfsLS error. prevDir: ' + data.prevDir.toString(), null);
+      }
+    });
   }
+
   ///SWARM FUNCTIONS
   function swarmPeers(phash, cb){
 

@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
+var u = require('../../mottoUtils');
+
 const authHelpers = require('../auth/_helpers');
 
 const ipfsController = require('../controllers/ipfs');
@@ -39,4 +41,12 @@ router.get('/liveline(\/:hash)?(\/:sub)?', authHelpers.loginRequired, function (
   //});
 });
 
+router.put('/ipfs/:hash/:filename', authHelpers.loginRequired, function (req, res, next){
+  ipfsController.recordMotto(req, (e, r) => {
+    if (e) res.status(500).send('Failed to put IPFS hash');
+    u.logdebug('response from ipfsPUT for %s: %o',  req.params.hash, r);
+    res.setHeader('Ipfs-Hash', r);
+    res.send('ipfsPUT:OK');
+  });
+});
 module.exports = router;
